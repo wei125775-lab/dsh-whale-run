@@ -44,7 +44,9 @@
 ## 装 / 卸
 
 两种拿法：`git clone` 这个仓库，或者到 [Releases](https://github.com/wei125775-lab/dsh-whale-run/releases/latest) 下 `dsh-whale-run-*.zip` 解压。
-安装器是个 Node 脚本（包本身零依赖），所以机器上得有 Node —— 没有的话 `install.cmd` 会直接告诉你。
+
+安装器是个 Node 脚本（包本身零依赖）。机器上有 Node 就直接用；**没装也不要紧** —— `install.cmd` 会自动去借 **dsh 自带的那个 Node**（桌面版内置了），两边都找不到时它才会提示你。
+macOS / Linux 上没有 `.cmd`，在解压出来的目录里直接跑 `node install.mjs` 就行（参数跟 Windows 下一样）。
 
 ```cmd
 install.cmd                  :: 装（双击也行）

@@ -73,7 +73,9 @@ function findProfiles() {
 function resolveProfile() {
   const profiles = findProfiles()
   if (!profiles.length) die(`在 ${path.join(DSH_HOME, 'profiles')} 下没找到任何 profile`,
-    '确认 DSH_HOME 指对了地方（本机应该是 D:\\dsh-desktop-home），或显式传 --dsh-home')
+    '先确认 dsh 桌面版装好了、而且至少启动过一次 —— profiles/ 那个目录是它自己建的。\n'
+    + '如果 dsh 的数据目录不在默认位置（默认是用户主目录下的 .dsh），\n'
+    + '就把 DSH_HOME 环境变量指过去，或者启动时带 --dsh-home <路径>。')
   if (WANT_PROFILE) {
     const hit = profiles.find((p) => p.name === WANT_PROFILE)
     if (!hit) die(`profile "${WANT_PROFILE}" 不存在`, `现有：${profiles.map((p) => p.name).join(', ')}`)
