@@ -4,18 +4,21 @@
 
 给 **DeepSeek Harness 桌面版**的隐藏小游戏：**把界面上那只鲸鱼摘下来，放到输入框上方的跑道上，跑一局。**
 
-> 这是一个 **dsh 客户端插件**，不是一个独立程序。它靠 `cordis.patch.yml` 挂进 dsh 的插件 loader 树（`dsh.bundle.patch` + `dsh.client.platform="web"`，三缺一会静默不加载），用 `install.cmd` 装进 `profiles/<名字>/node_modules/`。**装之前得先有一份能跑的 DeepSeek Harness 桌面版。**
+> 这是一个 **dsh 客户端插件**，不是一个独立程序。它靠 `cordis.patch.yml` 挂进 dsh 的插件 loader 树（`dsh.bundle.patch` + `dsh.client.platform="web"`，三缺一会静默不加载），用 `install.cmd` 装进 `profiles/<名字>/node_modules/`。
+>
+> **先得有 dsh 本身**：桌面版在官网下 —— [deepseek.com/download](https://www.deepseek.com/download/)（现在是预览版，Windows x64 和 Apple 芯片 macOS 各一个安装包）。装好打开、新建一个空会话，就能看到欢迎页那只鲸鱼。
 
 学的是 GitHub Copilot 桌面版拖 Octocat 头的玩法，玩法本身是小恐龙（Chrome 断网那只）。
 
-![拖着鲸鱼，跑道已经高亮](test/shots/01-拖着鲸鱼-跑道已高亮.png)
-
-![跑起来了](test/shots/02-跑起来了.png)
+![跑起来了：鲸鱼在输入框上方的水面上跑，前方是渔网、塑料瓶和珊瑚](test/shots/hi-2-跑起来.png)
 
 ## 怎么玩
 
 1. 新建一个会话 —— 欢迎页标题「探索未至之境」**左边**那只鲸鱼（侧边栏左上角那只也行）**按住就能拿起来**。
 2. 拿起来的一瞬间，那句标题会**碎成一片波浪**飘走，同时输入框上方缓缓涌出一条很淡的水面。
+
+   ![刚拿起来：标题逐字碎成波浪往上飘，鲸鱼在手上](test/shots/hi-1-拿起来.png)
+
 3. 把鲸鱼拖到水面上**松手**：它会从落点慢慢游到跑道开头，然后开跑（落在中间也不会瞬移归位）。
 4. 跑起来之后：
 
@@ -34,7 +37,7 @@
 
 撞死也一样，只是它先**被打飞**出去、翻着跟头掉出窗口下沿，水面退去之后图标和那句标题才一起回来：
 
-![撞死之后被打飞出去](test/shots/04b-被丢出去.png)
+![撞死之后被打飞出去，结算那屏写着 GAME OVER 和这一局的分数](test/shots/hi-3-撞死.png)
 
 跑道上那只鲸鱼跟原位那只**一样大**（原样有多大就画多大），拖起来不会突然胀一圈。
 
@@ -66,6 +69,9 @@ node test/extract-fish.mjs
 
 :: 离线跑断言 + 出图，几秒一轮、零风险，不用起 dsh
 node test/cdp-harness.mjs
+
+:: 重截 README 里那三张放大特写（跑道的 clip + 2.5 倍）
+node test/shoot-shots.mjs
 ```
 
 `test/harness.html` 是一套假 dsh：假的 `data-slot` 鲸鱼、假的 `data-composer-*` 输入框、假的 `__ModuleLoader__`、假的 `ctx`，还暴露了 `window.__whaleRun`（`grab / moveTo / release / dropNow / key / setSeed / engine`）给脚本驱动。截图落在 `test/shots/`。
