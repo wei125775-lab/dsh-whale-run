@@ -1,0 +1,16 @@
+<!doctype html>
+<html><head><meta charset="utf-8"><style>
+  body { margin: 0; background: #1b2430; color: #e6edf3; font: 14px system-ui; display: flex; gap: 40px;
+         align-items: center; justify-content: center; height: 100vh; }
+  .cell { text-align: center; }
+  svg { color: #e6edf3; display: block; margin: 0 auto 10px; }
+  .mirror { transform: scaleX(-1); }
+</style></head>
+<body>
+  <div class="cell"><svg width="280" height="206" viewBox="0 0 23.16 17.04" fill="none"><path fill="currentColor"/></svg>原样</div>
+  <div class="cell"><svg class="mirror" width="280" height="206" viewBox="0 0 23.16 17.04" fill="none"><path fill="currentColor"/></svg>水平镜像</div>
+  <script src="fixtures/fish-path.js"></script>
+  <script>
+    document.querySelectorAll('path').forEach(function (p) { p.setAttribute('d', window.__FISH_PATH__) })
+  </script>
+</body></html>

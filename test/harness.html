@@ -1,0 +1,150 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<title>whale-run harness</title>
+<style>
+  :root { --dsw-alias-label-primary: #e6edf3; --dsw-alias-border-secondary: rgba(140,160,180,.28); }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; height: 100%; }
+  body { background: #0d1117; color: #e6edf3; font: 14px/1.5 system-ui, "Segoe UI", sans-serif; overflow: hidden; }
+  #root { display: flex; height: 100vh; }
+
+  /* ---- 假侧边栏：鲸鱼在一个 <button> 里，祖先带 data-window-drag ---- */
+  .side { width: 240px; flex: none; background: #10161f; border-right: 1px solid #1d2735; padding: 8px; }
+  .logoRow { display: flex; align-items: center; gap: 8px; padding: 4px 6px; }
+  .brand { display: flex; align-items: center; gap: 8px; background: none; border: 0; color: inherit;
+           font: inherit; padding: 6px 4px; cursor: pointer; border-radius: 8px; }
+  .brand:hover { background: #182130; }
+  .brand .brandName { font-weight: 600; letter-spacing: .02em; }
+  .brand svg { display: block; color: var(--dsw-alias-label-primary); }
+
+  /* ---- 假主区 ---- */
+  main { flex: 1; display: flex; flex-direction: column; position: relative; min-width: 0; }
+  .hero { flex: 1; display: flex; align-items: center; justify-content: center; padding-bottom: 120px; }
+  .hero svg { color: var(--dsw-alias-label-primary); }
+  .titleGroup { display: flex; align-items: center; gap: 10px; font-size: 26px; font-weight: 600; opacity: .92; }
+  .previewBadge { font-size: 12px; font-weight: 500; padding: 2px 8px; border-radius: 999px;
+                  border: 1px solid rgba(255,255,255,.22); opacity: .7; }
+
+  /* ---- 假输入框：结构与 dsh 一致（data-composer-*） ---- */
+  .composerStack { padding: 0 24px 16px; }
+  .composerSeat { max-width: 760px; margin: 0 auto; }
+  .seatChips { display: flex; gap: 14px; padding: 6px 2px 10px; font-size: 13px; color: #8b98a8; }
+  .seatChips span { display: inline-flex; align-items: center; gap: 4px; }
+  .composerRoot { padding-bottom: 4px; }
+  .composerCard { position: relative; background: #161c26; border: 1px solid #26313f;
+                  border-radius: 16px; padding: 10px 12px; }
+  .inputScroll { max-height: 160px; overflow: auto; }
+  .input { min-height: 28px; padding: 6px 2px; outline: none; }
+  .composerRow { display: flex; justify-content: space-between; align-items: center; padding-top: 6px; }
+  .pill { font-size: 12px; color: #8b98a8; border: 1px solid #2b3646; border-radius: 999px; padding: 3px 10px; }
+
+  #harnessLog { position: fixed; left: 8px; bottom: 8px; font: 11px/1.4 ui-monospace, Consolas, monospace;
+                color: #7f8b9a; pointer-events: none; white-space: pre; }
+</style>
+</head>
+<body>
+<div id="root">
+
+  <aside class="side">
+    <div class="logoRow" data-window-drag>
+      <button type="button" class="brand" aria-label="New session">
+        <span aria-hidden="true">
+          <span class="brandMark"><div data-slot="sidebar.brand.mark" style="display: contents">
+            <svg width="24" height="17.66" viewBox="0 0 23.16 17.04" fill="none" aria-hidden="true"></svg>
+          </div></span>
+        </span>
+        <span class="brandName">DeepSeek Harness</span>
+      </button>
+    </div>
+  </aside>
+
+  <main>
+    <div class="hero">
+      <!-- 真机里就是这个排布：鲸鱼在标题左边，尺寸只有 34px -->
+      <div class="titleGroup">
+        <div data-slot="conversation.hero.brand.mark" style="display: contents">
+          <svg width="34" height="25" viewBox="0 0 23.16 17.04" fill="none" aria-hidden="true"></svg>
+        </div>
+        <span>探索未至之境</span>
+        <span class="previewBadge">预览版</span>
+      </div>
+    </div>
+
+    <div class="composerStack">
+      <div class="composerSeat" data-composer-seat data-conversation-region="composer">
+        <!-- 真机里 seat 里除了卡片还有这一行选择器；跑道不能压到它 -->
+        <div class="seatChips"><span>默认工作区</span><span>标准模式</span></div>
+        <div data-slot="conversation.composer.bar" style="display: contents">
+          <div class="composerRoot">
+            <div class="composerCard" data-composer-card>
+              <div class="inputScroll" data-input-scroll>
+                <div class="grow">
+                  <div contenteditable="true" role="textbox" aria-multiline="true" data-composer-input class="input"></div>
+                </div>
+              </div>
+              <div class="composerRow">
+                <span class="pill">+</span>
+                <span class="pill">发送</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+</div>
+
+<div id="harnessLog"></div>
+
+<!-- 1) 真鲸鱼的 path（从 asar 抠出来的） -->
+<script src="fixtures/fish-path.js"></script>
+
+<!-- 2) 把 path 塞进两只假鲸鱼，并定义假的模块加载器 -->
+<script>
+(function () {
+  var d = window.__FISH_PATH__;
+  var vb = window.__FISH_VIEWBOX__ || '0 0 23.16 17.04';
+  document.querySelectorAll('svg').forEach(function (svg) {
+    svg.setAttribute('viewBox', vb);
+    var p = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+    p.setAttribute('fill', 'currentColor');
+    if (d) p.setAttribute('d', d);
+    svg.appendChild(p);
+  });
+
+  // 假 React 委托：在 root 上冒泡阶段监听，模拟 React 18 的行为。
+  // 插件必须在 document 捕获阶段把拖拽后的那次 click 吃掉，否则这个计数会涨。
+  window.__newSessionClicks = 0;
+  document.getElementById('root').addEventListener('click', function (e) {
+    if (e.target && e.target.closest && e.target.closest('.brand')) window.__newSessionClicks++;
+  });
+
+  // 记录控制台错误，供断言用
+  window.__errors = [];
+  window.addEventListener('error', function (e) { window.__errors.push(String(e.message)); });
+
+  // 假的 __ModuleLoader__，协议与 dsh 一致：load 只入队，materialize 才跑 factory
+  window.__ModuleLoader__ = {
+    _reg: new Map(),
+    load: function (reg) { this._reg.set(reg.id, reg); },
+    materialize: function (id) {
+      var reg = this._reg.get(id);
+      if (!reg) throw new Error('client-modules: no registration for ' + id);
+      var req = function (s) { throw new Error('client-modules: require("' + s + '") missed the module table'); };
+      req.async = function (s) { return Promise.reject(new Error('no chunk ' + s)); };
+      return reg.factory(req);
+    },
+    has: function (id) { return this._reg.has(id); },
+  };
+})();
+</script>
+
+<!-- 3) 插件本体 -->
+<script src="../lib/client.js"></script>
+
+<!-- 4) 驱动 -->
+<script src="harness.js"></script>
+</body>
+</html>

@@ -1,0 +1,5 @@
+# dsh-whale-run bundle patch.
+# 客户端半侧只挂在「说明符恰好等于包名」的那条 Loader 行上，所以这条 insert 不能省。
+- insert:
+    - id: ui-whale-run
+      name: '@dph/dsh-whale-run'

@@ -1,0 +1,32 @@
+{
+  "name": "@dph/dsh-whale-run",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "license": "MIT",
+  "description": "dsh-whale-run — 把 DeepSeek Harness 界面上那只鲸鱼摘下来，放到输入框上方的跑道上跑一局。A hidden mini-game plugin for DeepSeek Harness (dsh) desktop.",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/wei125775-lab/dsh-whale-run.git"
+  },
+  "main": "lib/index.js",
+  "exports": {
+    ".": "./lib/index.js",
+    "./client": "./lib/client.js",
+    "./package.json": "./package.json"
+  },
+  "files": [
+    "lib",
+    "cordis.patch.yml",
+    "README.md"
+  ],
+  "dsh": {
+    "bundle": {
+      "patch": "./cordis.patch.yml"
+    },
+    "client": {
+      "platform": "web",
+      "immediately": true
+    }
+  }
+}
