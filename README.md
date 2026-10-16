@@ -32,6 +32,7 @@
 
 5. 障碍物全是海洋梗：**塑料瓶 / 渔网 / 珊瑚**要跳过去，**水母**要么下潜要么硬跳（看它漂多高）。
 6. 每 100 分闪一下，每 700 分从「透光浅海」切到「幽暗深海」。最高分存在本机。
+7. **跟着 dsh 的主题走** —— 浅色主题下线稿、水面和文字整体转成黑色，切一下主题立刻就变，不用重开。
 
 **没放进水面就松手** = 鲸鱼直接往下掉，碰到窗口下边框化成一圈水花消失，然后**变回原来那只图标**（有一下淡入）。
 
@@ -94,6 +95,8 @@ node test/shoot-shots.mjs
 **用的锚点全是非 hash 的**：`[data-slot="conversation.hero.brand.mark"]`、`[data-slot="sidebar.brand.mark"]`、`[data-composer-card]`、`[data-composer-input]`。绝不写死 `Hqq-bq_*` / `RlGAzG_*` 这种 CSS module 类名。
 
 **鲸鱼的形状是当场从 DOM 上读的**（`svg > path` 的 `d` + `viewBox`，颜色读 `getComputedStyle(svg).color`），所以升级 dsh 换 logo 之后画的还是新的那只，不会过期。找不到鲸鱼就整个不动手，不硬塞一份写死的 path。
+
+**主题同理，不写死颜色**。dsh 的两套 token 都挂在 `<body>` 上（浅色是 `body{}` 那一块，深色是 `body[data-ds-dark-theme]{}` 那一块），所以先看这条属性、再看 `--dsw-alias-label-primary` 的亮度，判出当前是浅色还是深色；不拿 `prefers-color-scheme` 当主判据，因为 dsh 允许手选主题。判完就把墨色整体翻一档：CSS 那半边是靠 `#whale-run-root` 上的通道变量，canvas 那半边每帧现读。切主题时渲染循环和环境监听都会跟上。
 
 ## 已知限制
 

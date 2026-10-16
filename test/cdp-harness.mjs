@@ -796,6 +796,59 @@ try {
   check('瓶子保持静止（画两次一模一样）', netAnim.bottleSame === true, netAnim)
   check('形变不会跑出碰撞盒太多（墨迹越过盒子 ≤ 4px）', netAnim.overlap <= 4, netAnim.overlap)
 
+  // --- 浅色主题：墨线和文字都得跟着翻（用户报的"dsh 变浅色后障碍物看不见"）---
+  const themeDark = await cdp.eval(`({
+    light: window.__whaleRun.theme.light,
+    attr: window.__whaleRun.theme.attr,
+    ink: window.__whaleRun.inkColor,
+    obstacle: window.__harness.obstacleInk(),
+    hint: getComputedStyle(document.querySelector('.wr-hint')).color,
+  })`)
+  check('默认（深色主题）判定为深色，root 上不带 data-wr-light',
+    themeDark.light === false && themeDark.attr === false && themeDark.ink === 'rgba(255,255,255,1)', themeDark)
+  check('深色下障碍是白墨', themeDark.obstacle.n > 100 && themeDark.obstacle.r > 200, themeDark.obstacle)
+  check('深色下提示文字是浅色', /^rgba?\(2\d\d/.test(themeDark.hint), themeDark.hint)
+
+  await cdp.eval('window.__harness.setTheme("light")')
+  await sleep(140)
+  const themeLight = await cdp.eval(`({
+    light: window.__whaleRun.theme.light,
+    attr: window.__whaleRun.theme.attr,
+    ink: window.__whaleRun.inkColor,
+    obstacle: window.__harness.obstacleInk(),
+    hint: getComputedStyle(document.querySelector('.wr-hint')).color,
+    score: getComputedStyle(document.querySelector('.wr-score')).color,
+    varInk: getComputedStyle(document.getElementById('whale-run-root')).getPropertyValue('--wr-ink').trim(),
+    whale: getComputedStyle(document.querySelector('[data-slot="conversation.hero.brand.mark"] svg')).color,
+  })`)
+  check('切到浅色主题后被认出来（root 带上 data-wr-light）',
+    themeLight.light === true && themeLight.attr === true && themeLight.ink === 'rgba(0,0,0,1)', themeLight)
+  check('浅色下障碍变成黑墨（用户要的就是这个）',
+    themeLight.obstacle.n > 100 && themeLight.obstacle.r < 60, themeLight.obstacle)
+  check('浅色下提示文字和分数都变黑',
+    /^rgba?\(0, 0, 0/.test(themeLight.hint) && /^rgba?\(0, 0, 0/.test(themeLight.score),
+    { hint: themeLight.hint, score: themeLight.score })
+  check('CSS 通道变量跟着翻（--wr-ink 0,0,0）', themeLight.varInk === '0,0,0', themeLight.varInk)
+
+  // 属性优先：token 还写着深色字（只按亮度判会说这是浅色主题），
+  // 但 body 上挂着 data-ds-dark-theme —— dsh 说了算的是它
+  await cdp.eval('window.__harness.setTheme("dark-attr")')
+  await sleep(140)
+  check('body[data-ds-dark-theme] 在的时候一律当深色（属性优先）',
+    (await cdp.eval('window.__whaleRun.theme.light')) === false)
+
+  await cdp.eval('window.__harness.setTheme("dark")')
+  await sleep(140)
+  const themeBack = await cdp.eval(`({
+    light: window.__whaleRun.theme.light,
+    attr: window.__whaleRun.theme.attr,
+    r: window.__harness.obstacleInk().r,
+    hint: getComputedStyle(document.querySelector('.wr-hint')).color,
+  })`)
+  check('切回深色能复原（墨线、文字都白回来）',
+    themeBack.light === false && themeBack.attr === false && themeBack.r > 200 &&
+    /^rgba?\(2\d\d/.test(themeBack.hint), themeBack)
+
   // --- 一只在往下掉的时候不许再摘另一只；那只飞完自己把图标还回来 ---
   const swap = await cdp.eval(`(function(){
     window.__whaleRun.grab('hero');

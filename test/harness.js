@@ -120,6 +120,42 @@
     },
     /** 把 canvas 的像素统计出来，用来判断"到底画了东西没有" */
     canvasStats: function () { return window.__harness._stats('.wr-canvas') },
+
+    // ---- 主题 ----
+    /** 假主题开关，结构照抄 dsh：两套 token 都挂在 body 上，深色那套多一个属性。
+     *  'light'     = 主文字变深色（浅底深字）
+     *  'dark'      = 主文字变浅色
+     *  'dark-attr' = token 还写着深色字，但 body 上挂着 data-ds-dark-theme —— 属性优先 */
+    setTheme: function (mode) {
+      var b = document.body
+      var looksLight = mode === 'light' || mode === 'dark-attr'
+      b.style.setProperty('--dsw-alias-label-primary', looksLight ? '#0f1115' : '#e6edf3')
+      b.style.background = mode === 'light' ? '#ffffff' : '#0d1117'
+      b.style.color = looksLight ? '#0f1115' : '#e6edf3'
+      b.toggleAttribute('data-ds-dark-theme', mode === 'dark-attr')
+      return mode
+    },
+    /** 四种障碍各画一次到空画布上，量不透明像素的平均 RGB
+     *（浅色主题下墨线必须变黑 —— 这就是用户报的那个"障碍物看不见"）*/
+    obstacleInk: function () {
+      var art = window.__whaleRun && window.__whaleRun._internals.art
+      if (!art) return null
+      var c = document.createElement('canvas')
+      c.width = 160; c.height = 90
+      var g = c.getContext('2d')
+      var kinds = ['bottle', 'net', 'coral', 'jelly']
+      for (var i = 0; i < kinds.length; i++) {
+        art.drawObstacle(g, { kind: kinds[i], x: 12 + i * 36, y: 20, w: 30, h: 30, oy: 30, phase: 0.4 }, 0.3)
+      }
+      var d = g.getImageData(0, 0, 160, 90).data
+      var r = 0, gg = 0, b = 0, n = 0
+      for (var p = 0; p < d.length; p += 4) {
+        if (d[p + 3] > 90) { r += d[p]; gg += d[p + 1]; b += d[p + 2]; n++ }
+      }
+      if (!n) return { n: 0, r: 0, g: 0, b: 0 }
+      return { n: n, r: Math.round(r / n), g: Math.round(gg / n), b: Math.round(b / n) }
+    },
+
     _stats: function (sel) {
       var c = document.querySelector(sel)
       if (!c) return null
